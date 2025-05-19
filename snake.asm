@@ -729,16 +729,20 @@ ENDP
 
 
 game_over PROC
-    XOR AX, AX
-    MOV AL, totalScore
-    MOV lives[BX+5], 0
-    LEA SI, lives
-    MOV DI, 130
+
+    XOR AX, AX              ; đặt AX=0
+    MOV AL, totalScore      ; lưu giá trị totalScore vào AL(phần thấp của AX) 
+    MOV lives[BX+5], 0      ; 
+    ; in lives của người chơi ra màn hình 
+    LEA SI, lives          
+    MOV DI, 130             
     MOV CX, 9
     CALL livesDisplay
     
-    ; Display game over
-    MOV DI, (10*80+35)*2
+
+    ; hiển thị Game Over
+    MOV DI, (10*80+35)*2    ; tính vị trí hiển thị dòng chữ "Game Over" (hàng 10, cột 35)
+    ; in chuỗi "Game Over" ra màn hình 
     LEA SI, gameOver
     MOV CX, 9
     loop1:
@@ -748,7 +752,8 @@ game_over PROC
     
     
     ; Display restart option    
-    MOV DI, (12*80+30)*2
+    MOV DI, (12*80+30)*2.   ; tính vị trí hiển thị dòng chữ "Restart ? (y / n)" (hàng 12, cột 30)
+    ; in chuỗi "Restart ? (y / n)" ra màn hình 
     LEA SI, endtxt
     MOV CX, 17
     loop2:
@@ -756,7 +761,8 @@ game_over PROC
         INC DI
         LOOP loop2 
     
-    ; Reset game stats for next game
+
+    ; đặt lại lives và độ dài snake cho lượt chơi mới
     MOV lives[6], 3 
     MOV lives[7], 3
     MOV lives[8], 3
@@ -764,12 +770,15 @@ game_over PROC
     MOV snakeLen, 1
     
     option:         
-        MOV AH, 7
+        MOV AH, 7            ; đọc một ký tự từ bàn phím mà không hiển thị lên màn hình
         INT 21h
+        ; nhân được ký tự 'y' từ bàn phím, nhảy đến restart 
         CMP AL, 'y'   
         JE restart_game
+        ; nhân được ký tự 'y' từ bàn phím, nhảy đến start_new_game 
         CMP AL, 'n'
         JE start_new_game        
+        ; nhận được ký tự khác, quay về option hỏi lại người chơi
         JMP option
         
     restart_game:
@@ -778,7 +787,7 @@ game_over PROC
         JMP start_again
         
     start_new_game:
-        ; Reset score and start completely new game with new name
+        ; đặt lại score=0 và bắt đầu lại game với username mới
         MOV totalScore, 0
         CALL get_name
         CALL main_menu
